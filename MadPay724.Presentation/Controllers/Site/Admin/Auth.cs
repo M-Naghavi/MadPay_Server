@@ -27,7 +27,7 @@ namespace MadPay724.Presentation.Controllers.Site.Admin
         private readonly IUnitOfWork<MalpayDbContext> _db;
         private readonly IAuthService _authService;
         public readonly IConfiguration _configuration;
-        public Auth(IUnitOfWork<MalpayDbContext> dbContext, IAuthService authService , IConfiguration configuration)
+        public Auth(IUnitOfWork<MalpayDbContext> dbContext, IAuthService authService, IConfiguration configuration)
         {
             _authService = authService;
             _configuration = configuration;
@@ -72,6 +72,7 @@ namespace MadPay724.Presentation.Controllers.Site.Admin
         public async Task<IActionResult> Login(UserForLoginDto userForRegisterDto)
         {
             var userFromRepo = await _authService.Login(userForRegisterDto.UserName, userForRegisterDto.Password);
+
             if (userFromRepo == null)
             {
                 return Unauthorized(new ReturnMessage()
