@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using MadPay724.Data.Repositories.Interface;
+using MadPay724.Data.Repositories.Repo;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -10,5 +12,7 @@ namespace MadPay724.Data.Infrastructure
     {
         void Save();
         Task<int> SaveAsync();
+
+        IUserRepository UserRepository { get; }
     }
 }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MadPay724.Data.Infrastructure
 {
-    public interface IRepositories<TEntity> : IDisposable where TEntity : class
+    public interface IRepository<TEntity> : IDisposable where TEntity : class
     {
         void Insert(TEntity entity);
         void Update(TEntity entity);

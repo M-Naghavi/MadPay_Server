@@ -8,12 +8,12 @@ using System.Threading.Tasks;
 
 namespace MadPay724.Data.Infrastructure
 {
-    public class Repositories<TEntity> : IRepositories<TEntity>, IDisposable where TEntity : class
+    public abstract class Repository<TEntity> : IRepository<TEntity>, IDisposable where TEntity : class
     {
         #region Ctor
         private readonly DbContext _db;
         private readonly DbSet<TEntity> _dbSet;
-        public Repositories(DbContext db)
+        public Repository(DbContext db)
         {
             _db = db;
             _dbSet = _db.Set<TEntity>();
@@ -130,7 +130,7 @@ namespace MadPay724.Data.Infrastructure
             Dispose(true);
             GC.SuppressFinalize(this);
         }
-        ~Repositories()
+        ~Repository()
         {
             Dispose(false);
         }
