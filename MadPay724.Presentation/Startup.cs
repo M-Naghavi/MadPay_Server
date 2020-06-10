@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Text;
 using MadPay724.Common.Helpers;
@@ -14,6 +16,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
+using NSwag;
+using NSwag.Generation.Processors.Security;
 
 namespace MadPay724.Presentation
 {
@@ -43,6 +47,45 @@ namespace MadPay724.Presentation
                         ValidateAudience = false
                     };
                 });
+
+            services.AddOpenApiDocument(document =>
+            {
+                document.DocumentName = "Site";
+                document.ApiGroupNames = new[] { "Site" };
+
+                document.PostProcess = d =>
+                {
+                    d.Info.Title = "Hello World Site";
+                    //d.Info.Contact = new OpenApiContact
+                    //{
+                    //    Name = "Ali Naghavi",
+                    //    Email = string.Empty,
+                    //    Url = "https://www.nuget.org/packages/NSwag.Generation.AspNetCore/"
+                    //};
+                    //d.Info.License = new OpenApiLicense
+                    //{
+                    //    Name = "Use under LICX",
+                    //    Url = "https://www.nuget.org/packages/NSwag.Generation.AspNetCore/"
+                    //};
+                };
+
+                document.AddSecurity("JWT", Enumerable.Empty<string>(), new OpenApiSecurityScheme
+                {
+                    Type = OpenApiSecuritySchemeType.ApiKey,
+                    Name = "Authorization",
+                    In = OpenApiSecurityApiKeyLocation.Header,
+                    Description = "Type into the textbox: Bearer {your JWT token}."
+                });
+
+                document.OperationProcessors.Add(
+                    new AspNetCoreOperationSecurityScopeProcessor("JWT"));
+                //      new OperationSecurityScopeProcessor("JWT"));
+            });
+            services.AddOpenApiDocument(document =>
+            {
+                document.DocumentName = "Api";
+                document.ApiGroupNames = new[] { "Api" };
+            });
 
         }
 
@@ -77,6 +120,11 @@ namespace MadPay724.Presentation
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
+
+            app.UseOpenApi();
+            app.UseSwaggerUi3(); 
+
+
 
             app.UseEndpoints(endpoints =>
             {

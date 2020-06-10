@@ -22,6 +22,7 @@ namespace MadPay724.Presentation.Controllers.Site.Admin
     [Authorize]
     [Route("site/admin/[controller]")]
     [ApiController]
+    [ApiExplorerSettings(GroupName = "Site")]
     public class Auth : ControllerBase
     {
         private readonly IUnitOfWork<MalpayDbContext> _db;
