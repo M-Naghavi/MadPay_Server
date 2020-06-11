@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using MadPay724.Common.ErrorAndMessage;
 using MadPay724.Data.DatabaseContext;
 using MadPay724.Data.Dtos.Site.Admin;
+using MadPay724.Data.Dtos.Site.Admin.Users;
 using MadPay724.Data.Models;
 using MadPay724.Repository.Infrastructure;
 using MadPay724.Services.Site.Admin.Auth.Interface;
@@ -55,12 +56,12 @@ namespace MadPay724.Presentation.Controllers.Site.Admin
                 UserName = userForRegisterDto.UserName,
                 Address = "",
                 City = "",
-                Gender = true,
+                Gender = "male",
                 BirthDate = DateTime.Now,
                 IsActive = true,
                 Status = true,
                 Name = userForRegisterDto.Name,
-                PnoneNumber = userForRegisterDto.PnoneNumber
+                PhoneNumber = userForRegisterDto.PnoneNumber
             };
 
             var createdUser = _authService.Register(userToCreate, userForRegisterDto.Password);
@@ -108,33 +109,5 @@ namespace MadPay724.Presentation.Controllers.Site.Admin
             });
         }
 
-
-
-
-
-
-
-        [AllowAnonymous]
-        [HttpGet("value")]
-        public async Task<IActionResult> GetValue()
-        {
-            return Ok(new ReturnMessage()
-            {
-                Message = "",
-                Status = true,
-                Title = "ok"
-            });
-        }
-
-        [HttpGet("values")]
-        public async Task<IActionResult> GetValues()
-        {
-            return Ok(new ReturnMessage()
-            {
-                Message = "",
-                Status = true,
-                Title = "ok"
-            });
-        }
     }
 }

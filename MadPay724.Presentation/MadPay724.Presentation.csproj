@@ -5,7 +5,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="Files\Json\Seed\UserSeedData.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="7.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.5" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.5" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.4">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -22,6 +28,10 @@
   <ItemGroup>
     <Folder Include="Controllers\Api\" />
     <Folder Include="Controllers\Site\App\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Files\Json\Seed\UserSeedData.json" />
   </ItemGroup>
 
 

@@ -14,14 +14,14 @@
       "launchBrowser": true,
       "launchUrl": "swagger",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Production"
+        "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
     "MadPay724.Presentation": {
       "commandName": "Project",
       "launchUrl": "api/home",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Production"
+        "ASPNETCORE_ENVIRONMENT": "Development" // Production , Development
       },
       "applicationUrl": "http://localhost:5000"
     }

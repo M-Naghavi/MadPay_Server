@@ -1,0 +1,294 @@
+[
+  //################################################## men
+  {
+    "UserName": "kimsosa@oronoko.com",
+    "Name": "Evans Myers",
+    "PhoneNumber": "+98 (844) 405-3508",
+    "Address": "719 Matthews Court Suitland Virgin Islands 2260",
+    "Gender": "male",
+    "City": "Corinne",
+    "IsActive": false,
+    "Status": true,
+    "BirthDate": "2007-11-26",
+    "Photos": [
+      {
+        "Url": "https://randomuser.me/api/portraits/men/85.jpg",
+        "Alt": "Officia magna enim ad quis qui velit est nisi duis amet eiusmod sit eiusmod.",
+        "IsMain": true,
+        "Description": "Elit duis excepteur excepteur elit incididunt nulla non aliquip ut culpa ipsum aute voluptate labore."
+      }
+    ],
+    "BankCards": [
+      {
+        "BankName": "Jill",
+        "OwnerName": "Anderson Hansen",
+        "Shaba": "IR 0236598000215632014698002",
+        "CardNumber": 6037997440001277,
+        "ExpireDateMonth": 98,
+        "ExpireDateYear": 4
+      }
+    ]
+  },
+  {
+    "UserName": "andersonhansen@oronoko.com",
+    "Name": "Chavez Ryan",
+    "PhoneNumber": "+98 (916) 533-3041",
+    "Address": "455 Linwood Street Hartsville/Hartley Northern Mariana Islands 1314",
+    "Gender": "male",
+    "City": "Mammoth",
+    "IsActive": true,
+    "Status": true,
+    "BirthDate": "1972-03-16",
+    "Photos": [
+      {
+        "Url": "https://randomuser.me/api/portraits/men/18.jpg",
+        "Alt": "Lorem veniam dolor exercitation qui aliquip pariatur occaecat ullamco consequat.",
+        "IsMain": true,
+        "Description": "Aliqua commodo elit aliquip amet id qui enim ullamco anim magna amet."
+      }
+    ],
+    "BankCards": [
+      {
+        "BankName": "Janet",
+        "OwnerName": "Carson Black",
+        "Shaba": "IR 0236598000215632014698002",
+        "CardNumber": 6037997440001277,
+        "ExpireDateMonth": 98,
+        "ExpireDateYear": 4
+      }
+    ]
+  },
+  {
+    "UserName": "carsonblack@oronoko.com",
+    "Name": "Vasquez Oliver",
+    "PhoneNumber": "+98 (887) 426-2561",
+    "Address": "781 Bliss Terrace Sabillasville Tennessee 5310",
+    "Gender": "male",
+    "City": "Zeba",
+    "IsActive": true,
+    "Status": true,
+    "BirthDate": "1972-09-09",
+    "Photos": [
+      {
+        "Url": "https://randomuser.me/api/portraits/men/66.jpg",
+        "Alt": "Lorem laboris sunt cillum et cupidatat nostrud ut occaecat incididunt eu culpa non.",
+        "IsMain": true,
+        "Description": "Aliquip non ad culpa minim incididunt nisi eu labore aute."
+      }
+    ],
+    "BankCards": [
+      {
+        "BankName": "Dorothea",
+        "OwnerName": "Rosales Mcgee",
+        "Shaba": "IR 0236598000215632014698002",
+        "CardNumber": 6037997440001277,
+        "ExpireDateMonth": 98,
+        "ExpireDateYear": 4
+      }
+    ]
+  },
+  {
+    "UserName": "rosalesmcgee@oronoko.com",
+    "Name": "Waller Reid",
+    "PhoneNumber": "+98 (982) 572-2743",
+    "Address": "403 Sharon Street Cedarville North Carolina 8045",
+    "Gender": "male",
+    "City": "Brule",
+    "IsActive": false,
+    "Status": true,
+    "BirthDate": "2007-09-04",
+    "Photos": [
+      {
+        "Url": "https://randomuser.me/api/portraits/men/38.jpg",
+        "Alt": "Ipsum in reprehenderit reprehenderit exercitation eu Lorem veniam ex adipisicing id laboris ut fugiat dolore.",
+        "IsMain": true,
+        "Description": "Dolor ipsum non reprehenderit commodo proident occaecat ad ex Lorem eu aliquip reprehenderit cupidatat."
+      }
+    ],
+    "BankCards": [
+      {
+        "BankName": "Wheeler",
+        "OwnerName": "Zamora Horne",
+        "Shaba": "IR 0236598000215632014698002",
+        "CardNumber": 6037997440001277,
+        "ExpireDateMonth": 98,
+        "ExpireDateYear": 4
+      }
+    ]
+  },
+  {
+    "UserName": "zamorahorne@oronoko.com",
+    "Name": "Chapman Emerson",
+    "PhoneNumber": "+98 (838) 495-2589",
+    "Address": "476 Madison Street Gordon Pennsylvania 7959",
+    "Gender": "male",
+    "City": "Frierson",
+    "IsActive": true,
+    "Status": true,
+    "BirthDate": "1981-06-27",
+    "Photos": [
+      {
+        "Url": "https://randomuser.me/api/portraits/men/82.jpg",
+        "Alt": "Dolore ut Lorem eiusmod aute.",
+        "IsMain": true,
+        "Description": "Labore ea duis ipsum aute sit."
+      }
+    ],
+    "BankCards": [
+      {
+        "BankName": "Cortez",
+        "OwnerName": "Donovan Kennedy",
+        "Shaba": "IR 0236598000215632014698002",
+        "CardNumber": 6037997440001277,
+        "ExpireDateMonth": 98,
+        "ExpireDateYear": 4
+      }
+    ]
+  },
+  //################################################## famale
+  {
+    "UserName": "conniegregory@extrawear.com",
+    "Name": "Madge Norton",
+    "PhoneNumber": "+98 (821) 478-2055",
+    "Address": "804 Metropolitan Avenue Nile Kentucky 6815",
+    "Gender": "female",
+    "City": "Wells",
+    "IsActive": false,
+    "Status": true,
+    "BirthDate": "1956-08-26",
+    "Photos": [
+      {
+        "Url": "https://randomuser.me/api/portraits/women/22.jpg",
+        "Alt": "Et tempor nulla labore dolor ex ex.",
+        "IsMain": true,
+        "Description": "Nisi est fugiat cillum exercitation aliqua consequat esse proident nulla cupidatat proident."
+      }
+    ],
+    "BankCards": [
+      {
+        "BankName": "Marianne",
+        "OwnerName": "Esther Luna",
+        "Shaba": "IR 0236598000215632014698002",
+        "CardNumber": 6037997440001277,
+        "ExpireDateMonth": 98,
+        "ExpireDateYear": 4
+      }
+    ]
+  },
+  {
+    "UserName": "estherluna@extrawear.com",
+    "Name": "Delores Beck",
+    "PhoneNumber": "+98 (941) 487-3721",
+    "Address": "312 Hegeman Avenue Vallonia Wisconsin 7994",
+    "Gender": "female",
+    "City": "Dunlo",
+    "IsActive": false,
+    "Status": false,
+    "BirthDate": "1970-07-31",
+    "Photos": [
+      {
+        "Url": "https://randomuser.me/api/portraits/women/61.jpg",
+        "Alt": "Minim esse quis voluptate ullamco fugiat esse laboris amet.",
+        "IsMain": true,
+        "Description": "Cupidatat aliquip nostrud magna ullamco veniam."
+      }
+    ],
+    "BankCards": [
+      {
+        "BankName": "Davenport",
+        "OwnerName": "Wanda Mayo",
+        "Shaba": "IR 0236598000215632014698002",
+        "CardNumber": 6037997440001277,
+        "ExpireDateMonth": 98,
+        "ExpireDateYear": 4
+      }
+    ]
+  },
+  {
+    "UserName": "wandamayo@extrawear.com",
+    "Name": "Darcy Bird",
+    "PhoneNumber": "+98 (928) 425-3414",
+    "Address": "266 Nassau Street Brambleton Connecticut 4209",
+    "Gender": "female",
+    "City": "Norvelt",
+    "IsActive": true,
+    "Status": false,
+    "BirthDate": "1988-12-05",
+    "Photos": [
+      {
+        "Url": "https://randomuser.me/api/portraits/women/42.jpg",
+        "Alt": "Aliqua reprehenderit incididunt labore ex occaecat minim.",
+        "IsMain": true,
+        "Description": "Adipisicing aliqua pariatur adipisicing dolor exercitation culpa aute in sint."
+      }
+    ],
+    "BankCards": [
+      {
+        "BankName": "Herminia",
+        "OwnerName": "Olga Mason",
+        "Shaba": "IR 0236598000215632014698002",
+        "CardNumber": 6037997440001277,
+        "ExpireDateMonth": 98,
+        "ExpireDateYear": 4
+      }
+    ]
+  },
+  {
+    "UserName": "olgamason@extrawear.com",
+    "Name": "Kelli Mcdonald",
+    "PhoneNumber": "+98 (855) 404-3540",
+    "Address": "578 Keap Street Cumminsville Mississippi 2015",
+    "Gender": "female",
+    "City": "Wheaton",
+    "IsActive": false,
+    "Status": true,
+    "BirthDate": "2016-06-13",
+    "Photos": [
+      {
+        "Url": "https://randomuser.me/api/portraits/women/92.jpg",
+        "Alt": "Ex sit irure elit dolore fugiat laboris nisi culpa magna in.",
+        "IsMain": true,
+        "Description": "Aute nisi laborum aute elit deserunt do."
+      }
+    ],
+    "BankCards": [
+      {
+        "BankName": "Loretta",
+        "OwnerName": "Joy Wise",
+        "Shaba": "IR 0236598000215632014698002",
+        "CardNumber": 6037997440001277,
+        "ExpireDateMonth": 98,
+        "ExpireDateYear": 4
+      }
+    ]
+  },
+  {
+    "UserName": "joywise@extrawear.com",
+    "Name": "Katharine Perez",
+    "PhoneNumber": "+98 (935) 536-3303",
+    "Address": "866 Will Place Nelson Utah 4117",
+    "Gender": "female",
+    "City": "Nipinnawasee",
+    "IsActive": true,
+    "Status": true,
+    "BirthDate": "1958-09-12",
+    "Photos": [
+      {
+        "Url": "https://randomuser.me/api/portraits/women/59.jpg",
+        "Alt": "Nisi mollit sunt officia officia non.",
+        "IsMain": true,
+        "Description": "Laborum ipsum in cupidatat elit fugiat ex."
+      }
+    ],
+    "BankCards": [
+      {
+        "BankName": "Michael",
+        "OwnerName": "Ina Terrell",
+        "Shaba": "IR 0236598000215632014698002",
+        "CardNumber": 6037997440001277,
+        "ExpireDateMonth": 98,
+        "ExpireDateYear": 4
+      }
+    ]
+  }
+]

@@ -14,12 +14,18 @@ namespace MadPay724.Data.Models
             DateModified = DateTime.Now;
         }
 
+        [StringLength(maximumLength: 0, MinimumLength = 100)]
         [Required]
         public string Name { get; set; }
+
         [Required]
         public string UserName { get; set; }
+
+        [StringLength(maximumLength: 0, MinimumLength = 100)]
         [Required]
-        public string PnoneNumber { get; set; }
+        public string PhoneNumber { get; set; }
+
+        [StringLength(maximumLength: 0, MinimumLength = 500)]
         [Required]
         public string Address { get; set; }
 
@@ -28,8 +34,11 @@ namespace MadPay724.Data.Models
         [Required]
         public byte[] PasswordSalt { get; set; }
 
-        public bool Gender { get; set; }
+        public string Gender { get; set; }
         public DateTime BirthDate { get; set; }
+        public DateTime LastActive { get; set; }
+
+        [StringLength(maximumLength: 0, MinimumLength = 100)]
         public string City { get; set; }
 
         [Required]

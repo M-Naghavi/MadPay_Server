@@ -1,11 +1,13 @@
-using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text;
+using AutoMapper;
 using MadPay724.Common.Helpers;
 using MadPay724.Data.DatabaseContext;
 using MadPay724.Repository.Infrastructure;
 using MadPay724.Service.Site.Admin.Auth.Service;
+using MadPay724.Services.Seed.Interface;
+using MadPay724.Services.Seed.Service;
 using MadPay724.Services.Site.Admin.Auth.Interface;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -31,7 +33,13 @@ namespace MadPay724.Presentation
 
         public void ConfigureServices(IServiceCollection services)
         {
+            //services.AddControllers().AddNewtonsoftJson(opt =>
+            //{
+            //    opt.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+            //});
             services.AddControllers();
+
+            services.AddTransient<ISeedService, SeedService>();
             services.AddCors();
 
             services.AddScoped<IUnitOfWork<MalpayDbContext>, UnitOfWork<MalpayDbContext>>();
@@ -48,48 +56,52 @@ namespace MadPay724.Presentation
                     };
                 });
 
+            #region swagger
             services.AddOpenApiDocument(document =>
-            {
-                document.DocumentName = "Site";
-                document.ApiGroupNames = new[] { "Site" };
-
-                document.PostProcess = d =>
                 {
-                    d.Info.Title = "Hello World Site";
-                    //d.Info.Contact = new OpenApiContact
-                    //{
-                    //    Name = "Ali Naghavi",
-                    //    Email = string.Empty,
-                    //    Url = "https://www.nuget.org/packages/NSwag.Generation.AspNetCore/"
-                    //};
-                    //d.Info.License = new OpenApiLicense
-                    //{
-                    //    Name = "Use under LICX",
-                    //    Url = "https://www.nuget.org/packages/NSwag.Generation.AspNetCore/"
-                    //};
-                };
+                    document.DocumentName = "Site";
+                    document.ApiGroupNames = new[] { "Site" };
 
-                document.AddSecurity("JWT", Enumerable.Empty<string>(), new OpenApiSecurityScheme
-                {
-                    Type = OpenApiSecuritySchemeType.ApiKey,
-                    Name = "Authorization",
-                    In = OpenApiSecurityApiKeyLocation.Header,
-                    Description = "Type into the textbox: Bearer {your JWT token}."
+                    document.PostProcess = d =>
+                    {
+                        d.Info.Title = "Hello World Site";
+                        //d.Info.Contact = new OpenApiContact
+                        //{
+                        //    Name = "Ali Naghavi",
+                        //    Email = string.Empty,
+                        //    Url = "https://www.nuget.org/packages/NSwag.Generation.AspNetCore/"
+                        //};
+                        //d.Info.License = new OpenApiLicense
+                        //{
+                        //    Name = "Use under LICX",
+                        //    Url = "https://www.nuget.org/packages/NSwag.Generation.AspNetCore/"
+                        //};
+                    };
+
+                    document.AddSecurity("JWT", Enumerable.Empty<string>(), new OpenApiSecurityScheme
+                    {
+                        Type = OpenApiSecuritySchemeType.ApiKey,
+                        Name = "Authorization",
+                        In = OpenApiSecurityApiKeyLocation.Header,
+                        Description = "Type into the textbox: Bearer {your JWT token}."
+                    });
+
+                    document.OperationProcessors.Add(
+                        new AspNetCoreOperationSecurityScopeProcessor("JWT"));
+                    //      new OperationSecurityScopeProcessor("JWT"));
                 });
-
-                document.OperationProcessors.Add(
-                    new AspNetCoreOperationSecurityScopeProcessor("JWT"));
-                //      new OperationSecurityScopeProcessor("JWT"));
-            });
             services.AddOpenApiDocument(document =>
             {
                 document.DocumentName = "Api";
                 document.ApiGroupNames = new[] { "Api" };
             });
+            #endregion
+
+            services.AddAutoMapper(typeof(Startup));
 
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ISeedService seeder)
         {
             if (env.IsDevelopment())
             {
@@ -115,6 +127,8 @@ namespace MadPay724.Presentation
             }
             //app.UseHttpsRedirection();
 
+            seeder.SeedUsers();
+
             app.UseCors(p => p.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 
             app.UseRouting();
@@ -122,7 +136,7 @@ namespace MadPay724.Presentation
             app.UseAuthorization();
 
             app.UseOpenApi();
-            app.UseSwaggerUi3(); 
+            app.UseSwaggerUi3();
 
 
 

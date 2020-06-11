@@ -72,14 +72,36 @@ namespace MadPay724.Repository.Infrastructure
             return _dbSet.AsEnumerable();
         }
 
+        public IEnumerable<TEntity> GetMany(Expression<Func<TEntity, bool>> filter = null,
+                           Func<IQueryable<TEntity>,IOrderedQueryable<TEntity>> orderBy = null , 
+                           string includeEntity = "")
+        {
+            IQueryable<TEntity> query = _dbSet;
+
+            if (filter != null)
+            {
+                query = query.Where(filter);
+            }
+
+            foreach (var include in includeEntity.Split(new char[] { ','} , StringSplitOptions.RemoveEmptyEntries))
+            {
+                query = query.Include(include);
+            }
+
+            if (orderBy != null)
+            {
+                return orderBy(query).ToList();
+            }
+            else
+            {
+                return query.ToList();
+            }
+
+        }
+
         public TEntity Get(Expression<Func<TEntity, bool>> where)
         {
             return _dbSet.Where(where).FirstOrDefault();
-        }
-
-        public IEnumerable<TEntity> GetMany(Expression<Func<TEntity, bool>> where)
-        {
-            return _dbSet.Where(where).AsEnumerable();
         }
         #endregion
 
@@ -101,14 +123,37 @@ namespace MadPay724.Repository.Infrastructure
             return await _dbSet.ToListAsync();
         }
 
+        public async Task<IEnumerable<TEntity>> GetManyAsync(Expression<Func<TEntity, bool>> filter = null,
+                           Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
+                           string includeEntity = "")
+        {
+            //return await _dbSet.Where(where).FirstOrDefaultAsync();
+
+            IQueryable<TEntity> query = _dbSet;
+
+            if (filter != null)
+            {
+                query = query.Where(filter);
+            }
+
+            foreach (var include in includeEntity.Split(new char[] { ','} , StringSplitOptions.RemoveEmptyEntries))
+            {
+                query = query.Include(include);
+            }
+
+            if (orderBy != null)
+            {
+                return await orderBy(query).ToListAsync();
+            }
+            else
+            {
+                return await query.ToListAsync();
+            }
+        }
+
         public async Task<TEntity> GetAsync(Expression<Func<TEntity, bool>> where)
         {
             return await _dbSet.Where(where).FirstOrDefaultAsync();
-        }
-
-        public async Task<IEnumerable<TEntity>> GetManyAsync(Expression<Func<TEntity, bool>> where)
-        {
-            return await _dbSet.Where(where).ToListAsync();
         }
         #endregion
 

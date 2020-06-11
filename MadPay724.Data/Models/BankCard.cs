@@ -15,14 +15,24 @@ namespace MadPay724.Data.Models
         }
 
         [Required]
+        [StringLength(maximumLength: 0, MinimumLength = 50)]
         public string BankName { get; set; }
-        public string Shaba { get; set; }
+
         [Required]
-        [Range(16, 16)]
+        [StringLength(maximumLength: 0, MinimumLength = 100)]
+        public string OwnerName { get; set; }
+
+        [StringLength(maximumLength: 0, MinimumLength = 100)]
+        public string Shaba { get; set; }
+
+        [Required]
+        [StringLength(maximumLength: 0, MinimumLength = 20)]
         public string CardNumber { get; set; }
+
         [Required]
         [StringLength(maximumLength: 2, MinimumLength = 2)]
         public string ExpireDateMonth { get; set; }
+
         [Required]
         [StringLength(maximumLength: 2, MinimumLength = 2)]
         public string ExpireDateYear { get; set; }

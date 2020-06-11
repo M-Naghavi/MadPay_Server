@@ -18,6 +18,7 @@ namespace MadPay724.Repository.Repositories.Repo
         {
             _db = (_db ?? (MalpayDbContext)_db);
         }
+
         public async  Task<bool> UserExist(string username)
         {
             if (await GetAsync(x=>x.UserName == username) != null)
