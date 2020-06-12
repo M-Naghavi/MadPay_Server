@@ -19,13 +19,19 @@ namespace MadPay724.Repository.Infrastructure
         #endregion
 
         #region Saves
-        public void Save()
+        public bool Save()
         {
-            _db.SaveChanges();
+            if (_db.SaveChanges() >= 1)
+                return true;
+            else
+                return false;
         }
-        public async Task<int> SaveAsync()
+        public async Task<bool> SaveAsync()
         {
-            return await _db.SaveChangesAsync();
+            if (await _db.SaveChangesAsync() >= 1)
+                return true;
+            else
+                return false;
         }
         #endregion
 
@@ -41,7 +47,20 @@ namespace MadPay724.Repository.Infrastructure
                 }
                 return userRepository;
             }
-        } 
+        }
+
+        private IPhotoRepository photoRepository;
+        public IPhotoRepository PhotoRepository
+        {
+            get
+            {
+                if (photoRepository == null)
+                {
+                    photoRepository = new PhotoRepository(_db);
+                }
+                return photoRepository;
+            }
+        }
         #endregion
 
         #region Dispose

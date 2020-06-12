@@ -1,3 +1,4 @@
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -9,6 +10,7 @@ using MadPay724.Service.Site.Admin.Auth.Service;
 using MadPay724.Services.Seed.Interface;
 using MadPay724.Services.Seed.Service;
 using MadPay724.Services.Site.Admin.Auth.Interface;
+using MadPay724.Services.Site.Admin.Auth.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
@@ -16,6 +18,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.FileProviders.Physical;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using NSwag;
@@ -37,13 +41,17 @@ namespace MadPay724.Presentation
             //{
             //    opt.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
             //});
-            services.AddControllers();
+            //services.AddControllers();
+            services.AddMvc(opt => opt.EnableEndpointRouting = false);
 
-            services.AddTransient<ISeedService, SeedService>();
             services.AddCors();
+            services.Configure<CloudinarySettings>(Configuration.GetSection("CloudinarySettings"));
 
+            services.AddAutoMapper(typeof(Startup));
+            services.AddTransient<ISeedService, SeedService>();
             services.AddScoped<IUnitOfWork<MalpayDbContext>, UnitOfWork<MalpayDbContext>>();
             services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IUserService, UserService>();
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(opt =>
                 {
@@ -97,7 +105,7 @@ namespace MadPay724.Presentation
             });
             #endregion
 
-            services.AddAutoMapper(typeof(Startup));
+            
 
         }
 
@@ -129,7 +137,8 @@ namespace MadPay724.Presentation
 
             seeder.SeedUsers();
 
-            app.UseCors(p => p.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+            //app.UseCors(p => p.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+            app.UseCors(p => p.WithOrigins("http://localhost:4200").AllowAnyMethod().AllowAnyHeader().AllowCredentials());
 
             app.UseRouting();
             app.UseAuthentication();
@@ -138,12 +147,18 @@ namespace MadPay724.Presentation
             app.UseOpenApi();
             app.UseSwaggerUi3();
 
-
-
-            app.UseEndpoints(endpoints =>
+            app.UseStaticFiles(new StaticFileOptions()
             {
-                endpoints.MapControllers();
+                FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(),@"Files")),
+                RequestPath = new PathString("/Files")
             });
+
+
+            //app.UseEndpoints(endpoints =>
+            //{
+            //    endpoints.MapControllers();
+            //});
+            app.UseMvc();
         }
     }
 }

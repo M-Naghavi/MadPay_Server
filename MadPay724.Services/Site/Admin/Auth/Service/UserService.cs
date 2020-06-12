@@ -5,25 +5,22 @@ using MadPay724.Repository.Infrastructure;
 using MadPay724.Services.Site.Admin.Auth.Interface;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MadPay724.Service.Site.Admin.Auth.Service
+namespace MadPay724.Services.Site.Admin.Auth.Service
 {
-    public class AuthService : IAuthService
+    public class UserService : IUserService
     {
         private readonly IUnitOfWork<MalpayDbContext> _db;
-        public AuthService(IUnitOfWork<MalpayDbContext> dbContext)
+        public UserService(IUnitOfWork<MalpayDbContext> dbContext)
         {
             _db = dbContext;
         }
 
-        public async Task<User> Login(string username, string password)
+        public async Task<User> GetUserForPassChange(string id, string password)
         {
-            var users = await _db.UserRepository.GetManyAsync(x => x.UserName == username, null, "Photos,BankCards");
-            var user  = users.SingleOrDefault();
-
+            var user = await _db.UserRepository.GetByIdAsync(id);
             if (user == null)
             {
                 return null;
@@ -37,19 +34,16 @@ namespace MadPay724.Service.Site.Admin.Auth.Service
             return user;
         }
 
-        public async Task<User> Register(User user,Photo photo, string password)
+        public async Task<bool> UpdateUserPassword(User user, string newPassword)
         {
             byte[] passwordHash, passwordSalt;
-            Utilities.CreatePasswordHash(password, out passwordHash, out passwordSalt);
+            Utilities.CreatePasswordHash(newPassword, out passwordHash, out passwordSalt);
 
             user.PasswordHash = passwordHash;
             user.PasswordSalt = passwordSalt;
 
-            await _db.UserRepository.InsertAsync(user);
-            await _db.PhotoRepository.InsertAsync(photo);
-            await _db.SaveAsync();
-
-            return user;
+            _db.UserRepository.Update(user);
+            return await _db.SaveAsync();
         }
     }
 }

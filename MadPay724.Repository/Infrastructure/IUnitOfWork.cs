@@ -9,9 +9,10 @@ namespace MadPay724.Repository.Infrastructure
 {
     public interface IUnitOfWork<TContext> : IDisposable where TContext : DbContext
     {
-        void Save();
-        Task<int> SaveAsync();
+        bool Save();
+        Task<bool> SaveAsync();
 
         IUserRepository UserRepository { get; }
+        IPhotoRepository PhotoRepository { get; }
     }
 }

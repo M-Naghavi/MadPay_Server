@@ -4,6 +4,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AutoMapper;
+using MadPay724.Common.ErrorAndMessage;
 using MadPay724.Data.DatabaseContext;
 using MadPay724.Data.Dtos.Site.Admin.Users;
 using MadPay724.Data.Models;
@@ -23,13 +24,16 @@ namespace MadPay724.Presentation.Controllers.Site.Admin
     public class UsersController : ControllerBase
     {
         private readonly IUnitOfWork<MalpayDbContext> _db;
-        public IMapper _mapper { get; }
+        private readonly IUserService _userService;
+        private readonly IMapper _mapper;
 
         public UsersController(IUnitOfWork<MalpayDbContext> dbContext,
-                               IMapper mapper)
+                               IMapper mapper,
+                               IUserService userService)
         {
             _db = dbContext;
             _mapper = mapper;
+            _userService = userService;
         }
 
         [HttpGet]
@@ -46,6 +50,59 @@ namespace MadPay724.Presentation.Controllers.Site.Admin
             var user = await _db.UserRepository.GetManyAsync(p => p.Id == id, null, "Photos");
             UserForDetailedDto userToReturn = _mapper.Map<UserForDetailedDto>(user.SingleOrDefault());
             return Ok(userToReturn);
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateUser(string id , UserForUpdateDto userForUpdateDto)
+        {
+            if (User.FindFirst(ClaimTypes.NameIdentifier).Value != id)
+                return Unauthorized("شما اجازه ویرایش این کاربر را ندارید");
+
+            var userFromRepo = await _db.UserRepository.GetByIdAsync(id);
+            _mapper.Map(userForUpdateDto, userFromRepo);
+            _db.UserRepository.Update(userFromRepo);
+            if (await _db.SaveAsync())
+            {
+                return NoContent();
+            }
+            else
+            {
+                return BadRequest(new ReturnMessage()
+                {
+                    Message = $"ویرایش برای کاربر {userForUpdateDto.Name} انجام نشد.",
+                    Status = false,
+                    Title = "خطا"
+                });
+            }
+        }
+
+        [Route("ChangeUserPassword/{id}")]
+        [HttpPut]
+        public async Task<IActionResult> ChangeUserPassword(string id ,PasswordForChangeDto passwordForChangeDto)
+        {
+            var userFromRepo =await _userService.GetUserForPassChange(id, passwordForChangeDto.OldPassword);
+
+            if (userFromRepo == null)
+                return BadRequest(new ReturnMessage()
+                {
+                    Message = $"پسورد قبلی اشتباه میباشد",
+                    Status = false,
+                    Title = "خطا"
+                });
+
+            if (await _userService.UpdateUserPassword(userFromRepo , passwordForChangeDto.NewPassword))
+            {
+                return NoContent();
+            }
+            else
+            {
+                return BadRequest(new ReturnMessage()
+                {
+                    Message = $"ویرایش پسورد کاربر انجام نشد",
+                    Status = false,
+                    Title = "خطا"
+                });
+            }
         }
 
         //[Route("GetProfileUser/{id}")]
