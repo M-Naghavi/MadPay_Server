@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace MadPay724.Presentation.Controllers.Site.Admin
 {
@@ -26,14 +27,16 @@ namespace MadPay724.Presentation.Controllers.Site.Admin
         private readonly IUnitOfWork<MalpayDbContext> _db;
         private readonly IUserService _userService;
         private readonly IMapper _mapper;
-
+        private readonly ILogger<UsersController> _logger;
         public UsersController(IUnitOfWork<MalpayDbContext> dbContext,
                                IMapper mapper,
-                               IUserService userService)
+                               IUserService userService,
+                               ILogger<UsersController> logger)
         {
             _db = dbContext;
             _mapper = mapper;
             _userService = userService;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -56,7 +59,10 @@ namespace MadPay724.Presentation.Controllers.Site.Admin
         public async Task<IActionResult> UpdateUser(string id , UserForUpdateDto userForUpdateDto)
         {
             if (User.FindFirst(ClaimTypes.NameIdentifier).Value != id)
+            {
+                _logger.LogError($"{id} : your not allowed to edit this user");
                 return Unauthorized("شما اجازه ویرایش این کاربر را ندارید");
+            }
 
             var userFromRepo = await _db.UserRepository.GetByIdAsync(id);
             _mapper.Map(userForUpdateDto, userFromRepo);

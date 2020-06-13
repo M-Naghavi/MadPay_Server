@@ -3,9 +3,6 @@ using MadPay724.Data.DatabaseContext;
 using MadPay724.Data.Models;
 using MadPay724.Repository.Infrastructure;
 using MadPay724.Services.Site.Admin.Auth.Interface;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace MadPay724.Services.Site.Admin.Auth.Service
@@ -13,10 +10,12 @@ namespace MadPay724.Services.Site.Admin.Auth.Service
     public class UserService : IUserService
     {
         private readonly IUnitOfWork<MalpayDbContext> _db;
+
         public UserService(IUnitOfWork<MalpayDbContext> dbContext)
         {
             _db = dbContext;
         }
+
 
         public async Task<User> GetUserForPassChange(string id, string password)
         {

@@ -2,10 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MadPay724.Data.DatabaseContext;
+using MadPay724.Data.Models;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using NLog.Extensions.Logging;
+using ZNetCS.AspNetCore.Logging.EntityFrameworkCore;
 
 namespace MadPay724.Presentation
 {
@@ -18,6 +22,15 @@ namespace MadPay724.Presentation
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
+                .ConfigureLogging((hostingContext, logging) =>
+                {
+                    //logging.AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
+                    //logging.AddConsole();
+                    //logging.AddDebug();
+                    //logging.AddEventSourceLogger();
+                    logging.AddNLog();
+                    logging.AddEntityFramework<LogDbContext , ExtendedLog>();
+                })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();

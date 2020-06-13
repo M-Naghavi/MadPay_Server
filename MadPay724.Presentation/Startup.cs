@@ -108,7 +108,7 @@ namespace MadPay724.Presentation
             });
             #endregion
 
-            
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
         }
 
