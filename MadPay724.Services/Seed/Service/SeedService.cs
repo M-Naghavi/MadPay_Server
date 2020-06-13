@@ -25,7 +25,7 @@ namespace MadPay724.Services.Seed.Service
         {
             if (_db.UserRepository.GetAll().Count() <= 0)
             {
-                string userData = System.IO.File.ReadAllText("Files/Json/Seed/UserSeedData.json");
+                string userData = System.IO.File.ReadAllText("wwwroot/Files/Json/Seed/UserSeedData.json");
                 IList<User> users = JsonConvert.DeserializeObject<IList<User>>(userData);
 
                 foreach (var user in users)

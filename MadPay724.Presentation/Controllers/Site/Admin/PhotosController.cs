@@ -12,7 +12,9 @@ using MadPay724.Data.Dtos.Site.Admin.Photos;
 using MadPay724.Data.Models;
 using MadPay724.Repository.Infrastructure;
 using MadPay724.Services.Site.Admin.Auth.Interface;
+using MadPay724.Services.Upload.Interface;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -27,23 +29,17 @@ namespace MadPay724.Presentation.Controllers.Site.Admin
     {
         private readonly IUnitOfWork<MalpayDbContext> _db;
         private readonly IMapper _mapper;
-        private readonly IOptions<CloudinarySettings> _cloudinarySettings;
-        private readonly Cloudinary _cloudinary;
-
+        private readonly IWebHostEnvironment _webHostEnvironment;
+        public IUploadService _uploadService { get; }
         public PhotosController(IUnitOfWork<MalpayDbContext> dbContext,
                                IMapper mapper,
-                               IOptions<CloudinarySettings> cloudinarySettings)
+                               IUploadService uploadService,
+                               IWebHostEnvironment webHostEnvironment)
         {
             _db = dbContext;
             _mapper = mapper;
-
-            _cloudinarySettings = cloudinarySettings;
-            Account account = new Account(
-                _cloudinarySettings.Value.CloudName,
-                _cloudinarySettings.Value.APIKey,
-                _cloudinarySettings.Value.APISecret
-                );
-            _cloudinary = new Cloudinary(account);
+            _uploadService = uploadService;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         [HttpPost]
@@ -52,48 +48,47 @@ namespace MadPay724.Presentation.Controllers.Site.Admin
             if (User.FindFirst(ClaimTypes.NameIdentifier).Value != userId)
                 return Unauthorized("شما اجازه تغییر تصویر این کاربر را ندارید");
 
-            //var userFromRepo = await _db.UserRepository.GetByIdAsync(userId);
-
-            var file = photoForProfile.File;
-            var uploadResult = new ImageUploadResult();
-            if (file.Length > 0)
+            var path = string.Format("{0}://{1}{2}", Request.Scheme, Request.Host.Value, Request.PathBase.Value);
+            var uploadResult =await _uploadService.UploadProfilePicture(photoForProfile.File, userId, _webHostEnvironment.WebRootPath,path);
+            if (uploadResult.Status)
             {
-                using (var stream = file.OpenReadStream())
+                if (uploadResult.LocalUploaded)
+                    photoForProfile.PublicId = "1";
+                else
+                    photoForProfile.PublicId = uploadResult.PublicId;
+                photoForProfile.Url = uploadResult.Url;
+
+
+                var oldPhoto = await _db.PhotoRepository.GetAsync(x => x.UserId == userId && x.IsMain);
+                if (oldPhoto.PublicId != null && oldPhoto.PublicId != "0" && oldPhoto.PublicId != "1")
                 {
-                    var uploadParams = new ImageUploadParams()
-                    {
-                        File = new FileDescription(file.Name, stream),
-                        Transformation = new Transformation().Width(250).Height(250).Crop("fill").Gravity("face")
-                    };
-                    uploadResult = _cloudinary.Upload(uploadParams);
+                    _uploadService.RemoveFileFromCloudinary(oldPhoto.PublicId);
                 }
-            }
-            photoForProfile.Url = uploadResult.Url.ToString();
-            photoForProfile.PublicId = uploadResult.PublicId;
+                if (oldPhoto.PublicId == photoForProfile.PublicId && photoForProfile.Url.Split('/').Last() != oldPhoto.Url.Split('/').Last())
+                {
+                    _uploadService.RemoveFileFromLocal(oldPhoto.Url.Split('/').Last(), _webHostEnvironment.WebRootPath, "Files\\Pic\\Profile");
+                }
+                if (oldPhoto.PublicId == "1" && photoForProfile.PublicId != "1")
+                {
+                    _uploadService.RemoveFileFromLocal(oldPhoto.Url.Split('/').Last(), _webHostEnvironment.WebRootPath, "Files\\Pic\\Profile");
+                }
 
-            var oldPhoto = await _db.PhotoRepository.GetAsync(x => x.UserId == userId && x.IsMain);
-            if (oldPhoto.PublicId != null && oldPhoto.PublicId != "0")
-            {
-                var deleteParams = new DeletionParams(oldPhoto.PublicId);
-                var deleteResult = _cloudinary.Destroy(deleteParams);
-                //if (deleteResult.Result.ToLower() == "ok")
-                //{
+                _mapper.Map(photoForProfile, oldPhoto);
 
-                //}
-            }
-
-
-            _mapper.Map(photoForProfile, oldPhoto);
-
-            _db.PhotoRepository.Update(oldPhoto);
-            if (await _db.SaveAsync())
-            {
-                var photoForReturn = _mapper.Map<PhotoForReturnProfileDto>(oldPhoto);
-                return CreatedAtRoute("GetPhoto", new { id = oldPhoto.Id }, photoForReturn);
+                _db.PhotoRepository.Update(oldPhoto);
+                if (await _db.SaveAsync())
+                {
+                    var photoForReturn = _mapper.Map<PhotoForReturnProfileDto>(oldPhoto);
+                    return CreatedAtRoute("GetPhoto", new { id = oldPhoto.Id }, photoForReturn);
+                }
+                else
+                {
+                    return BadRequest("خطایی در اپلود، دوباره امتحان کنید");
+                }
             }
             else
             {
-                return BadRequest("خطایی در اپلود، دوباره امتحان کنید");
+                return BadRequest(uploadResult.Message);
             }
         }
 

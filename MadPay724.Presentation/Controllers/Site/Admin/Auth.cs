@@ -79,7 +79,7 @@ namespace MadPay724.Presentation.Controllers.Site.Admin
                                     Request.Scheme , 
                                     Request.Host.Value , 
                                     Request.PathBase.Value,
-                                    "Files/Pic/ProfilePic.png"),
+                                    "wwwroot/Files/Pic/ProfilePic.png"),
                Description = "Profile Pic",
                Alt = "Profile Pic",
                IsMain = true,

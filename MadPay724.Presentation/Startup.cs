@@ -11,6 +11,8 @@ using MadPay724.Services.Seed.Interface;
 using MadPay724.Services.Seed.Service;
 using MadPay724.Services.Site.Admin.Auth.Interface;
 using MadPay724.Services.Site.Admin.Auth.Service;
+using MadPay724.Services.Upload.Interface;
+using MadPay724.Services.Upload.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
@@ -45,13 +47,14 @@ namespace MadPay724.Presentation
             services.AddMvc(opt => opt.EnableEndpointRouting = false);
 
             services.AddCors();
-            services.Configure<CloudinarySettings>(Configuration.GetSection("CloudinarySettings"));
+            //services.Configure<CloudinarySettings>(Configuration.GetSection("CloudinarySettings"));
 
             services.AddAutoMapper(typeof(Startup));
             services.AddTransient<ISeedService, SeedService>();
             services.AddScoped<IUnitOfWork<MalpayDbContext>, UnitOfWork<MalpayDbContext>>();
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IUploadService, UploadService>();
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(opt =>
                 {
@@ -147,12 +150,15 @@ namespace MadPay724.Presentation
             app.UseOpenApi();
             app.UseSwaggerUi3();
 
+            //app.UseStaticFiles(new StaticFileOptions()
+            //{
+            //    FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot")),
+            //    RequestPath = new PathString("/wwwroot")
+            //});
             app.UseStaticFiles(new StaticFileOptions()
             {
-                FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(),@"Files")),
-                RequestPath = new PathString("/Files")
+                RequestPath = new PathString("/wwwroot")
             });
-
 
             //app.UseEndpoints(endpoints =>
             //{

@@ -61,6 +61,19 @@ namespace MadPay724.Repository.Infrastructure
                 return photoRepository;
             }
         }
+
+        private ISettingRepository settingRepository;
+        public ISettingRepository SettingRepository
+        {
+            get
+            {
+                if (settingRepository == null)
+                {
+                    settingRepository = new SettingRepository(_db);
+                }
+                return settingRepository;
+            }
+        }
         #endregion
 
         #region Dispose

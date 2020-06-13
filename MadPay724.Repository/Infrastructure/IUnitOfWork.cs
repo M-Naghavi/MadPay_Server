@@ -14,5 +14,6 @@ namespace MadPay724.Repository.Infrastructure
 
         IUserRepository UserRepository { get; }
         IPhotoRepository PhotoRepository { get; }
+        ISettingRepository SettingRepository { get; }
     }
 }
