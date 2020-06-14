@@ -8,6 +8,7 @@ using MadPay724.Common.ErrorAndMessage;
 using MadPay724.Data.DatabaseContext;
 using MadPay724.Data.Dtos.Site.Admin.Users;
 using MadPay724.Data.Models;
+using MadPay724.Presentation.Filters;
 using MadPay724.Repository.Infrastructure;
 using MadPay724.Services.Site.Admin.Auth.Interface;
 using Microsoft.AspNetCore.Authorization;
@@ -19,6 +20,7 @@ using Microsoft.Extensions.Logging;
 namespace MadPay724.Presentation.Controllers.Site.Admin
 {
     [Authorize]
+    //[ServiceFilter(typeof(LogFilter))]
     [Route("site/admin/[controller]")]
     [ApiController]
     [ApiExplorerSettings(GroupName = "Site")]
@@ -60,7 +62,7 @@ namespace MadPay724.Presentation.Controllers.Site.Admin
         {
             if (User.FindFirst(ClaimTypes.NameIdentifier).Value != id)
             {
-                _logger.LogError($"{id} : your not allowed to edit this user");
+                _logger.LogError($"{userForUpdateDto.Name} : your not allowed to edit this user");
                 return Unauthorized("شما اجازه ویرایش این کاربر را ندارید");
             }
 
@@ -73,6 +75,7 @@ namespace MadPay724.Presentation.Controllers.Site.Admin
             }
             else
             {
+                _logger.LogError($"{userForUpdateDto.Name} : user can not update");
                 return BadRequest(new ReturnMessage()
                 {
                     Message = $"ویرایش برای کاربر {userForUpdateDto.Name} انجام نشد.",

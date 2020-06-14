@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 
 namespace MadPay724.Presentation.Controllers.Site.Admin
@@ -31,16 +32,18 @@ namespace MadPay724.Presentation.Controllers.Site.Admin
         private readonly IAuthService _authService;
         public readonly IConfiguration _configuration;
         public readonly IMapper _mapper;
-
+        private readonly ILogger<Auth> _logger;
         public Auth(IUnitOfWork<MalpayDbContext> dbContext, 
                     IAuthService authService, 
                     IConfiguration configuration,
-                    IMapper mapper)
+                    IMapper mapper,
+                    ILogger<Auth> logger)
         {
             _authService = authService;
             _configuration = configuration;
             _mapper = mapper;
             _db = dbContext;
+            _logger = logger;
         }
 
         [AllowAnonymous]
@@ -50,6 +53,7 @@ namespace MadPay724.Presentation.Controllers.Site.Admin
             userForRegisterDto.UserName = userForRegisterDto.UserName.ToLower();
             if (await _db.UserRepository.UserExist(userForRegisterDto.UserName))
             {
+                _logger.LogWarning($"{userForRegisterDto.Name}-{userForRegisterDto.UserName} میخواهد دوباره ثبت نام کند");
                 return BadRequest(new ReturnMessage()
                 {
                     Message = "Username is exist",
@@ -87,7 +91,7 @@ namespace MadPay724.Presentation.Controllers.Site.Admin
             };
 
             var createdUser = _authService.Register(userToCreate, photoToCreate, userForRegisterDto.Password);
-
+            _logger.LogInformation($"{userForRegisterDto.Name}-{userForRegisterDto.UserName} ثبت نام کرد");
             return StatusCode(201);
         }
 
@@ -99,6 +103,7 @@ namespace MadPay724.Presentation.Controllers.Site.Admin
 
             if (userFromRepo == null)
             {
+                _logger.LogWarning($"{userForRegisterDto.UserName} درخواست ورود ناموفق داشته است");
                 return Unauthorized("کاربری با این یوزر و پسورد وجود ندارد");
                 //return Unauthorized(new ReturnMessage()
                 //{
@@ -127,6 +132,8 @@ namespace MadPay724.Presentation.Controllers.Site.Admin
             var token = tokenHandler.CreateToken(tokenDes);
 
             UserForDetailedDto user = _mapper.Map<UserForDetailedDto>(userFromRepo);
+
+            _logger.LogInformation($"{userForRegisterDto.UserName} وارد سایت شده است");
 
             return Ok(new
             {

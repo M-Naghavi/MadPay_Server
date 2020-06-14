@@ -5,6 +5,7 @@ using System.Text;
 using AutoMapper;
 using MadPay724.Common.Helpers;
 using MadPay724.Data.DatabaseContext;
+using MadPay724.Presentation.Filters;
 using MadPay724.Repository.Infrastructure;
 using MadPay724.Service.Site.Admin.Auth.Service;
 using MadPay724.Services.Seed.Interface;
@@ -109,7 +110,7 @@ namespace MadPay724.Presentation
             #endregion
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-
+            services.AddScoped<LogFilter>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ISeedService seeder)
