@@ -1,12 +1,13 @@
-﻿using System;
+﻿using MadPay724.Common.Helpers.Interface;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace MadPay724.Common.Helpers
+namespace MadPay724.Common.Helpers.Helpers
 {
-    public class Utilities
+    public class Utilities : IUtilities
     {
-        public static void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
+        public  void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
         {
             using (var hmac = new System.Security.Cryptography.HMACSHA512())
             {
@@ -14,7 +15,7 @@ namespace MadPay724.Common.Helpers
                 passwordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
             }
         }
-        public static bool VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt)
+        public  bool VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt)
         {
             using (var hmac = new System.Security.Cryptography.HMACSHA512(passwordSalt))
             {

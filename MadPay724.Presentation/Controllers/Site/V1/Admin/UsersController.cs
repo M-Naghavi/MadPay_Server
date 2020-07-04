@@ -1,29 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using AutoMapper;
 using MadPay724.Common.ErrorAndMessage;
 using MadPay724.Data.DatabaseContext;
+using MadPay724.Data.Dtos.Common.ION;
 using MadPay724.Data.Dtos.Site.Admin.Users;
-using MadPay724.Data.Models;
-using MadPay724.Presentation.Filters;
+using MadPay724.Presentation.Helpers.Filters;
+using MadPay724.Presentation.Routes.v1;
 using MadPay724.Repository.Infrastructure;
-using MadPay724.Services.Site.Admin.Auth.Interface;
+using MadPay724.Services.Site.Users.Interface;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace MadPay724.Presentation.Controllers.Site.Admin
+namespace MadPay724.Presentation.Controllers.Site.V1.Admin
 {
     [Authorize]
+    //[System.Web.Mvc.RequireHttps]
     //[ServiceFilter(typeof(LogFilter))]
-    [Route("site/admin/[controller]")]
+    //[Route("api/v1/site/admin/[controller]")]
     [ApiController]
-    [ApiExplorerSettings(GroupName = "Site")]
+    [ApiExplorerSettings(GroupName = "v1_Site_Admin")]
     public class UsersController : ControllerBase
     {
         private readonly IUnitOfWork<MalpayDbContext> _db;
@@ -41,15 +40,24 @@ namespace MadPay724.Presentation.Controllers.Site.Admin
             _logger = logger;
         }
 
-        [HttpGet]
+        [HttpGet(ApiV1Routes.Users.GetUsers)]
+        [AllowAnonymous]
+        [ResponseCache(Duration = 60 )]
         public async Task<IActionResult> GetUsers()
         {
             var users = await _db.UserRepository.GetManyAsync(null, null, "Photos,BankCards");
             IEnumerable<UserForListDto> usersToReturn = _mapper.Map<IEnumerable<UserForListDto>>(users);
-            return Ok(usersToReturn);
+            var collectionLink = Link.ToCollection(nameof(GetUsers));
+            var collection = new Collection<UserForListDto>()
+            {
+                Self = collectionLink , 
+                Value = usersToReturn.ToArray()
+            };
+            return Ok(collection);
         }
 
-        [HttpGet("{id}")]
+        [HttpGet(ApiV1Routes.Users.GetUser, Name = nameof(GetUser))]
+        [ServiceFilter(typeof(UserCheckIdFilter))]
         public async Task<IActionResult> GetUser(string id)
         {
             var user = await _db.UserRepository.GetManyAsync(p => p.Id == id, null, "Photos");
@@ -57,15 +65,10 @@ namespace MadPay724.Presentation.Controllers.Site.Admin
             return Ok(userToReturn);
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateUser(string id , UserForUpdateDto userForUpdateDto)
+        [HttpPut(ApiV1Routes.Users.UpdateUser)]
+        [ServiceFilter(typeof(UserCheckIdFilter))]
+        public async Task<IActionResult> UpdateUser(string id, UserForUpdateDto userForUpdateDto)
         {
-            if (User.FindFirst(ClaimTypes.NameIdentifier).Value != id)
-            {
-                _logger.LogError($"{userForUpdateDto.Name} : your not allowed to edit this user");
-                return Unauthorized("شما اجازه ویرایش این کاربر را ندارید");
-            }
-
             var userFromRepo = await _db.UserRepository.GetByIdAsync(id);
             _mapper.Map(userForUpdateDto, userFromRepo);
             _db.UserRepository.Update(userFromRepo);
@@ -85,11 +88,11 @@ namespace MadPay724.Presentation.Controllers.Site.Admin
             }
         }
 
-        [Route("ChangeUserPassword/{id}")]
-        [HttpPut]
-        public async Task<IActionResult> ChangeUserPassword(string id ,PasswordForChangeDto passwordForChangeDto)
+        [HttpPut(ApiV1Routes.Users.ChangeUserPassword)]
+        [ServiceFilter(typeof(UserCheckIdFilter))]
+        public async Task<IActionResult> ChangeUserPassword(string id, PasswordForChangeDto passwordForChangeDto)
         {
-            var userFromRepo =await _userService.GetUserForPassChange(id, passwordForChangeDto.OldPassword);
+            var userFromRepo = await _userService.GetUserForPassChange(id, passwordForChangeDto.OldPassword);
 
             if (userFromRepo == null)
                 return BadRequest(new ReturnMessage()
@@ -99,7 +102,7 @@ namespace MadPay724.Presentation.Controllers.Site.Admin
                     Title = "خطا"
                 });
 
-            if (await _userService.UpdateUserPassword(userFromRepo , passwordForChangeDto.NewPassword))
+            if (await _userService.UpdateUserPassword(userFromRepo, passwordForChangeDto.NewPassword))
             {
                 return NoContent();
             }

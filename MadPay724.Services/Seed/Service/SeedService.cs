@@ -1,4 +1,5 @@
 ﻿using MadPay724.Common.Helpers;
+using MadPay724.Common.Helpers.Interface;
 using MadPay724.Data.DatabaseContext;
 using MadPay724.Data.Models;
 using MadPay724.Repository.Infrastructure;
@@ -16,9 +17,12 @@ namespace MadPay724.Services.Seed.Service
     public class SeedService : ISeedService
     {
         private readonly IUnitOfWork<MalpayDbContext> _db;
-        public SeedService(IUnitOfWork<MalpayDbContext> dbContext)
+        private readonly IUtilities _utilities;
+
+        public SeedService(IUnitOfWork<MalpayDbContext> dbContext , IUtilities utilities)
         {
             _db = dbContext;
+            _utilities = utilities;
         }
 
         public async Task SeedUsersAsync()
@@ -31,7 +35,7 @@ namespace MadPay724.Services.Seed.Service
                 foreach (var user in users)
                 {
                     byte[] passwordHash, passwordSalt;
-                    Utilities.CreatePasswordHash("123456", out passwordHash, out passwordSalt);
+                    _utilities.CreatePasswordHash("123456", out passwordHash, out passwordSalt);
 
                     user.PasswordHash = passwordHash;
                     user.PasswordSalt = passwordSalt;
@@ -53,7 +57,7 @@ namespace MadPay724.Services.Seed.Service
                 foreach (var user in users)
                 {
                     byte[] passwordHash, passwordSalt;
-                    Utilities.CreatePasswordHash("123456", out passwordHash, out passwordSalt);
+                    _utilities.CreatePasswordHash("123456", out passwordHash, out passwordSalt);
 
                     user.PasswordHash = passwordHash;
                     user.PasswordSalt = passwordSalt;

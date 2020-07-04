@@ -1,19 +1,23 @@
 ﻿using MadPay724.Common.Helpers;
+using MadPay724.Common.Helpers.Interface;
 using MadPay724.Data.DatabaseContext;
 using MadPay724.Data.Models;
 using MadPay724.Repository.Infrastructure;
 using MadPay724.Services.Site.Admin.Auth.Interface;
+using MadPay724.Services.Site.Users.Interface;
 using System.Threading.Tasks;
 
-namespace MadPay724.Services.Site.Admin.Auth.Service
+namespace MadPay724.Services.Site.Users.Service
 {
     public class UserService : IUserService
     {
         private readonly IUnitOfWork<MalpayDbContext> _db;
+        private readonly IUtilities _Utilities;
 
-        public UserService(IUnitOfWork<MalpayDbContext> dbContext)
+        public UserService(IUnitOfWork<MalpayDbContext> dbContext , IUtilities utilities)
         {
             _db = dbContext;
+            _Utilities = utilities;
         }
 
 
@@ -25,7 +29,7 @@ namespace MadPay724.Services.Site.Admin.Auth.Service
                 return null;
             }
 
-            if (!Utilities.VerifyPasswordHash(password, user.PasswordHash, user.PasswordSalt))
+            if (!_Utilities.VerifyPasswordHash(password, user.PasswordHash, user.PasswordSalt))
             {
                 return null;
             }
@@ -36,7 +40,7 @@ namespace MadPay724.Services.Site.Admin.Auth.Service
         public async Task<bool> UpdateUserPassword(User user, string newPassword)
         {
             byte[] passwordHash, passwordSalt;
-            Utilities.CreatePasswordHash(newPassword, out passwordHash, out passwordSalt);
+            _Utilities.CreatePasswordHash(newPassword, out passwordHash, out passwordSalt);
 
             user.PasswordHash = passwordHash;
             user.PasswordSalt = passwordSalt;

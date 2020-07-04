@@ -19,6 +19,7 @@ namespace MadPay724.Data.Dtos.Site.Admin.Users
         public string Name { get; set; }
 
         [Required]
+        [Phone(ErrorMessage ="شماره موبایل صحیح نمیباشد")]
         public string PnoneNumber { get; set; }
     }
 }

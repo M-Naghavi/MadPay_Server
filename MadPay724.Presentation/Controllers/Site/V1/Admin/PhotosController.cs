@@ -1,30 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using AutoMapper;
-using CloudinaryDotNet;
-using CloudinaryDotNet.Actions;
-using MadPay724.Common.Helpers;
+﻿using AutoMapper;
 using MadPay724.Data.DatabaseContext;
 using MadPay724.Data.Dtos.Site.Admin.Photos;
-using MadPay724.Data.Models;
+using MadPay724.Presentation.Helpers.Filters;
+using MadPay724.Presentation.Routes.v1;
 using MadPay724.Repository.Infrastructure;
-using MadPay724.Services.Site.Admin.Auth.Interface;
 using MadPay724.Services.Upload.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace MadPay724.Presentation.Controllers.Site.Admin
+namespace MadPay724.Presentation.Controllers.Site.V1.Admin
 {
     [Authorize]
-    [Route("site/admin/users/{userId}/photos")]
+    //[Route("api/v1/site/admin/users/{userId}/photos")]
     [ApiController]
-    [ApiExplorerSettings(GroupName = "Site")]
+    [ApiExplorerSettings(GroupName = "v1_Site_Admin")]
     public class PhotosController : ControllerBase
     {
         private readonly IUnitOfWork<MalpayDbContext> _db;
@@ -42,13 +34,11 @@ namespace MadPay724.Presentation.Controllers.Site.Admin
             _webHostEnvironment = webHostEnvironment;
         }
 
-        [HttpPost]
+        [ServiceFilter(typeof(UserCheckIdFilter))]
+        [HttpPost(ApiV1Routes.Photos.ChangeUserPhoto)]
         public async Task<IActionResult> ChangeUserPhoto(string userId, [FromForm] PhotoForProfile photoForProfile)
         {
-            if (User.FindFirst(ClaimTypes.NameIdentifier).Value != userId)
-                return Unauthorized("شما اجازه تغییر تصویر این کاربر را ندارید");
-
-            var path = string.Format("{0}://{1}{2}", Request.Scheme, Request.Host.Value, Request.PathBase.Value);
+            var path = string.Format("{0}://{1}{2}", Request.Scheme, Request.Host.Value ?? "", Request.PathBase.Value ?? "");
             var uploadResult =await _uploadService.UploadProfilePicture(photoForProfile.File, userId, _webHostEnvironment.WebRootPath,path);
             if (uploadResult.Status)
             {
@@ -92,7 +82,8 @@ namespace MadPay724.Presentation.Controllers.Site.Admin
             }
         }
 
-        [HttpGet("{id}", Name = "GetPhoto")]
+        [ServiceFilter(typeof(UserCheckIdFilter))]
+        [HttpGet(ApiV1Routes.Photos.GetPhoto, Name = nameof(GetPhoto))]
         public async Task<IActionResult> GetPhoto(string id)
         {
             var photoFromRepo = await _db.PhotoRepository.GetByIdAsync(id);

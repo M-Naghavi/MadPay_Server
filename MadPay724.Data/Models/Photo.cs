@@ -15,13 +15,13 @@ namespace MadPay724.Data.Models
         }
 
         [Required]
-        [StringLength(maximumLength: 0, MinimumLength = 1000)]
+        [StringLength(maximumLength: 1000, MinimumLength = 0)]
         public string Url { get; set; }
 
-        [StringLength(maximumLength: 0, MinimumLength = 500)]
+        [StringLength(maximumLength: 500, MinimumLength = 0)]
         public string Description { get; set; }
 
-        [StringLength(maximumLength: 0, MinimumLength = 500)]
+        [StringLength(maximumLength: 500, MinimumLength = 0)]
         public string Alt { get; set; }
 
         [Required]

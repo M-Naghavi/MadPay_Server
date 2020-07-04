@@ -13,6 +13,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MadPay724.Services", "MadPa
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MadPay724.Presentation", "MadPay724.Presentation\MadPay724.Presentation.csproj", "{793CDCA2-EB9F-4399-9C9E-2272028DDFD6}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MadPay724.Test", "MadPay724.Test\MadPay724.Test.csproj", "{3FA2CB6D-A165-4E8B-B818-111B2C45ACCA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MadPay724.IdentityServer", "MadPay724.IdentityServer\MadPay724.IdentityServer.csproj", "{24A61A5D-3F57-4099-A176-1358FC4EAB47}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +43,14 @@ Global
 		{793CDCA2-EB9F-4399-9C9E-2272028DDFD6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{793CDCA2-EB9F-4399-9C9E-2272028DDFD6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{793CDCA2-EB9F-4399-9C9E-2272028DDFD6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3FA2CB6D-A165-4E8B-B818-111B2C45ACCA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3FA2CB6D-A165-4E8B-B818-111B2C45ACCA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3FA2CB6D-A165-4E8B-B818-111B2C45ACCA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3FA2CB6D-A165-4E8B-B818-111B2C45ACCA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{24A61A5D-3F57-4099-A176-1358FC4EAB47}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{24A61A5D-3F57-4099-A176-1358FC4EAB47}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{24A61A5D-3F57-4099-A176-1358FC4EAB47}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{24A61A5D-3F57-4099-A176-1358FC4EAB47}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

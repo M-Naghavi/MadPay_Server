@@ -1,4 +1,5 @@
 ﻿using MadPay724.Common.Helpers;
+using MadPay724.Common.Helpers.Interface;
 using MadPay724.Data.DatabaseContext;
 using MadPay724.Data.Models;
 using MadPay724.Repository.Infrastructure;
@@ -14,9 +15,12 @@ namespace MadPay724.Service.Site.Admin.Auth.Service
     public class AuthService : IAuthService
     {
         private readonly IUnitOfWork<MalpayDbContext> _db;
-        public AuthService(IUnitOfWork<MalpayDbContext> dbContext)
+        private readonly IUtilities _utilities;
+
+        public AuthService(IUnitOfWork<MalpayDbContext> dbContext, IUtilities utilities)
         {
             _db = dbContext;
+            _utilities = utilities;
         }
 
         public async Task<User> Login(string username, string password)
@@ -29,7 +33,7 @@ namespace MadPay724.Service.Site.Admin.Auth.Service
                 return null;
             }
 
-            if (!Utilities.VerifyPasswordHash(password, user.PasswordHash, user.PasswordSalt))
+            if (!_utilities.VerifyPasswordHash(password, user.PasswordHash, user.PasswordSalt))
             {
                 return null;
             }
@@ -40,16 +44,23 @@ namespace MadPay724.Service.Site.Admin.Auth.Service
         public async Task<User> Register(User user,Photo photo, string password)
         {
             byte[] passwordHash, passwordSalt;
-            Utilities.CreatePasswordHash(password, out passwordHash, out passwordSalt);
+            _utilities.CreatePasswordHash(password, out passwordHash, out passwordSalt);
 
             user.PasswordHash = passwordHash;
             user.PasswordSalt = passwordSalt;
 
             await _db.UserRepository.InsertAsync(user);
             await _db.PhotoRepository.InsertAsync(photo);
-            await _db.SaveAsync();
+            if (await _db.SaveAsync())
+            {
+                return user;
+            }
+            else
+            {
+                return null;
+            }
 
-            return user;
+            
         }
     }
 }

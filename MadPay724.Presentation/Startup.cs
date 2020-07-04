@@ -1,17 +1,23 @@
+using System;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Runtime.Serialization;
 using System.Text;
 using AutoMapper;
 using MadPay724.Common.Helpers;
+using MadPay724.Common.Helpers.Helpers;
+using MadPay724.Common.Helpers.Interface;
+using MadPay724.Common.Helpers.MediaTypes;
 using MadPay724.Data.DatabaseContext;
-using MadPay724.Presentation.Filters;
+using MadPay724.Presentation.Helpers.Filters;
 using MadPay724.Repository.Infrastructure;
 using MadPay724.Service.Site.Admin.Auth.Service;
 using MadPay724.Services.Seed.Interface;
 using MadPay724.Services.Seed.Service;
 using MadPay724.Services.Site.Admin.Auth.Interface;
-using MadPay724.Services.Site.Admin.Auth.Service;
+using MadPay724.Services.Site.Users.Interface;
+using MadPay724.Services.Site.Users.Service;
 using MadPay724.Services.Upload.Interface;
 using MadPay724.Services.Upload.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -19,6 +25,10 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Formatters;
+using Microsoft.AspNetCore.Mvc.Versioning;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
@@ -33,9 +43,20 @@ namespace MadPay724.Presentation
     public class Startup
     {
         public IConfiguration Configuration { get; }
-        public Startup(IConfiguration configuration)
+        private readonly int? _httpsPort;
+        public Startup(IConfiguration configuration, IWebHostEnvironment env)
         {
             Configuration = configuration;
+
+            if (env.IsDevelopment())
+            {
+                var lunchJsonConig = new ConfigurationBuilder()
+                   .SetBasePath(env.ContentRootPath)
+                   .AddJsonFile("Properties\\launchSettings.json")
+                   .Build();
+
+                _httpsPort = lunchJsonConig.GetValue<int>("iisSettings:iisExpress:sslPort");
+            }
         }
 
         public void ConfigureServices(IServiceCollection services)
@@ -45,7 +66,69 @@ namespace MadPay724.Presentation
             //    opt.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
             //});
             //services.AddControllers();
-            services.AddMvc(opt => opt.EnableEndpointRouting = false);
+
+            services.AddMvc(config =>
+            {
+                config.EnableEndpointRouting = false;
+                //conig.ReturnHttpNotAcceptable = true; // agar accept k dar heder bud eshtebah bud error bde
+                //conig.OutputFormatters.Add(new XmlDataContractSerializerOutputFormatter()); // baraye poshtibai az xml dar proje - ersale xms to user
+                //conig.InputFormatters.Add(new XmlSerializerInputFormatter(conig));  // baraye in k betvanad darkhaste ra ba content-type xml befrstad
+
+                #region baraye in ke content type header request ra be delkhah avaz konim
+                //var jsonFormatter = conig.OutputFormatters.OfType<SystemTextJsonOutputFormatter>().Single();
+                //conig.OutputFormatters.Remove(jsonFormatter);
+                //conig.OutputFormatters.Add(new IonOutputFormatter(jsonFormatter));
+                #endregion
+
+                #region config https for project
+                config.SslPort = _httpsPort;
+                config.Filters.Add(typeof(RequireHttpsAttribute));
+                #endregion
+
+                config.Filters.Add(typeof(LinkRewritingFilter)); // afzoodan filter baraye sakhte link dar reponse (ION)
+
+                #region tarife Cache , arguman hayash - estefade : balaye action => [ResponseCache(CacheProfileName = "static")]
+                //config.CacheProfiles.Add("static", new CacheProfile
+                //{
+                //    Duration = 80000
+                //}); 
+                #endregion
+
+            });
+
+            #region baraye in ke http aslan kar nakonad va browser ra majbor konim site ra ba https baz konad ba khode mvc
+            // heder zir ra be header hye site ezafr mikonad : Strict-Transport-Security
+            // bad az in kar site ba http nabayad baz shavad
+            services.AddHsts(opt =>
+                {
+                    opt.MaxAge = TimeSpan.FromDays(180);
+                    opt.IncludeSubDomains = true;
+                    opt.Preload = true;
+                    //opt.ExcludedHosts //  yek seri address ha ra tabdi be https nakon
+                });
+            #endregion
+
+            //services.AddResponseCompression(opt=>opt.Providers.Add<GzipCompressionProvider>());
+            services.AddResponseCaching();  // vaghti be in sorat ([ResponseCache(Duration = 60)]) estefade mikonim ham dar client va ham dar server Cach mishavad
+
+            #region all inputs lower case
+            //services.AddRouting(opt=>
+            //{
+            //    opt.LowercaseUrls = true;   // baraye lower case kardane horoof input - default pascal
+            //}); 
+            #endregion
+
+            #region Versioning
+            //services.AddApiVersioning(opt =>
+            //{
+            //    opt.ApiVersionReader = new MediaTypeApiVersionReader();
+            //    opt.AssumeDefaultVersionWhenUnspecified = true;
+            //    opt.ReportApiVersions = true;
+            //    opt.DefaultApiVersion = new ApiVersion(1, 0);
+            //    opt.ApiVersionSelector = new CurrentImplementationApiVersionSelector(opt);
+            //}); 
+            #endregion
+
 
             services.AddCors();
             //services.Configure<CloudinarySettings>(Configuration.GetSection("CloudinarySettings"));
@@ -56,6 +139,7 @@ namespace MadPay724.Presentation
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IUploadService, UploadService>();
+            services.AddScoped<IUtilities, Utilities>();
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(opt =>
                 {
@@ -71,12 +155,12 @@ namespace MadPay724.Presentation
             #region swagger
             services.AddOpenApiDocument(document =>
                 {
-                    document.DocumentName = "Site";
-                    document.ApiGroupNames = new[] { "Site" };
+                    document.DocumentName = "v1_Site_Admin";
+                    document.ApiGroupNames = new[] { "v1_Site_Admin" };
 
                     document.PostProcess = d =>
                     {
-                        d.Info.Title = "Hello World Site";
+                        d.Info.Title = "MadPay724 Api doces";
                         //d.Info.Contact = new OpenApiContact
                         //{
                         //    Name = "Ali Naghavi",
@@ -110,7 +194,8 @@ namespace MadPay724.Presentation
             #endregion
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-            services.AddScoped<LogFilter>();
+            //services.AddScoped<LogFilter>();
+            services.AddScoped<UserCheckIdFilter>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ISeedService seeder)
@@ -135,9 +220,23 @@ namespace MadPay724.Presentation
                         }
                     });
                 });
-                //app.UseHsts();
+
+                #region baraye in ke http aslan kar nakonad va browser ra majbor konim site ra ba https baz konad ba package NWebsec.AspNetCore.Middleware
+                // chn cashable hast behtar ast dar halate prodication estefade shavad
+                //app.UseHsts(opt =>
+                //    {
+                //        opt.MaxAge(days: 180);
+                //        opt.IncludeSubdomains();
+                //        opt.Preload();
+                //    }); 
+                #endregion
+                app.UseHsts();
+
             }
-            //app.UseHttpsRedirection();
+            app.UseHttpsRedirection();
+
+            //app.UseResponseCompression();
+            app.UseResponseCaching();
 
             seeder.SeedUsers();
 
