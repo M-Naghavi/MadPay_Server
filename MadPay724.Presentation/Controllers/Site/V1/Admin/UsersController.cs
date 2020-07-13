@@ -17,7 +17,6 @@ using System.Threading.Tasks;
 
 namespace MadPay724.Presentation.Controllers.Site.V1.Admin
 {
-    [Authorize]
     //[System.Web.Mvc.RequireHttps]
     //[ServiceFilter(typeof(LogFilter))]
     //[Route("api/v1/site/admin/[controller]")]
@@ -41,7 +40,6 @@ namespace MadPay724.Presentation.Controllers.Site.V1.Admin
         }
 
         [HttpGet(ApiV1Routes.Users.GetUsers)]
-        [AllowAnonymous]
         [ResponseCache(Duration = 60 )]
         public async Task<IActionResult> GetUsers()
         {

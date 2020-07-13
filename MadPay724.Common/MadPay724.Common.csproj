@@ -9,8 +9,10 @@
     <PackageReference Include="latticework.cs" Version="1.0.16" />
     <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Formatters.Json" Version="2.2.0" />
+    <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="6.6.0" />
     <!--<PackageReference Include="Microsoft.IdentityModel.Tokens" Version="6.7.0" />-->
     <PackageReference Include="NLog.Web.AspNetCore" Version="4.9.2" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.6.0" />
   </ItemGroup>
 
   <ItemGroup>

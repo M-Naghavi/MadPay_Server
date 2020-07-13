@@ -8,11 +8,15 @@
   <ItemGroup>
     <Compile Remove="Migrations\20200613144022_initLog.cs" />
     <Compile Remove="Migrations\20200613144022_initLog.Designer.cs" />
+    <Compile Remove="Migrations\MadPayMigrations\20200706130837_init.cs" />
+    <Compile Remove="Migrations\MadPayMigrations\20200706130837_init.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="3.1.5" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.1.4" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="2.2.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.4" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.4" />
@@ -20,6 +24,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="3.1.5" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="ZNetCS.AspNetCore.Logging.EntityFrameworkCore" Version="2.1.1" />
   </ItemGroup>

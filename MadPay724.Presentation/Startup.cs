@@ -10,6 +10,7 @@ using MadPay724.Common.Helpers.Helpers;
 using MadPay724.Common.Helpers.Interface;
 using MadPay724.Common.Helpers.MediaTypes;
 using MadPay724.Data.DatabaseContext;
+using MadPay724.Data.Models;
 using MadPay724.Presentation.Helpers.Filters;
 using MadPay724.Repository.Infrastructure;
 using MadPay724.Service.Site.Admin.Auth.Service;
@@ -21,14 +22,19 @@ using MadPay724.Services.Site.Users.Service;
 using MadPay724.Services.Upload.Interface;
 using MadPay724.Services.Upload.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.AspNetCore.ResponseCompression;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
@@ -61,6 +67,15 @@ namespace MadPay724.Presentation
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddDbContext<MalpayDbContext>(p=>
+            {
+                p.UseSqlServer("Data Source=.; Initial Catalog=MadPay724db; Integrated Security=true; MultipleActiveResultSets=true");
+            });
+            services.AddDbContext<LogDbContext>(opt => {
+                opt.UseSqlServer("Data Source=.; Initial Catalog=MadPay724db_Log; Integrated Security=true; MultipleActiveResultSets=true");
+            });
+
+
             //services.AddControllers().AddNewtonsoftJson(opt =>
             //{
             //    opt.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
@@ -94,7 +109,53 @@ namespace MadPay724.Presentation
                 //}); 
                 #endregion
 
+                #region baraye estefade az policy , digar niyaz nist az attribute [Authorize] estefade shavad
+                var policy = new AuthorizationPolicyBuilder()
+                        .RequireAuthenticatedUser()
+                        .Build();
+                config.Filters.Add(new AuthorizeFilter(policy));  
+                #endregion
+
             });
+
+            #region identity set
+            IdentityBuilder builder = services.AddIdentityCore<User>(opt =>
+                {
+                    opt.Password.RequireDigit = false;
+                    opt.Password.RequiredLength = 4;
+                    opt.Password.RequireNonAlphanumeric = false;
+                    opt.Password.RequireUppercase = false;
+                    opt.Password.RequireLowercase = false;
+                });
+            builder = new IdentityBuilder(builder.UserType, typeof(Role), builder.Services);
+
+            builder.AddEntityFrameworkStores<MalpayDbContext>();
+            builder.AddRoleValidator<RoleValidator<Role>>();
+            builder.AddRoleManager<RoleManager<Role>>();
+            builder.AddSignInManager<SignInManager<User>>(); 
+            #endregion
+
+            #region services.AddAuthentication without identity server 
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(opt =>
+            {
+                opt.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Configuration.GetSection("AppSettingToken:Token").Value)),
+                    ValidateIssuer = false,
+                    ValidateAudience = false
+                };
+            });
+            #endregion
+            #region services.AddAuthentication with identity server 
+            //services.AddAuthentication("Bearer")
+            //        .AddIdentityServerAuthentication(opt =>
+            //        {
+            //            opt.Authority = "http://localhost:5000";
+            //            opt.RequireHttpsMetadata = false;
+            //            opt.ApiName = "MadPay724Api";
+            //        }); 
+            #endregion
 
             #region baraye in ke http aslan kar nakonad va browser ra majbor konim site ra ba https baz konad ba khode mvc
             // heder zir ra be header hye site ezafr mikonad : Strict-Transport-Security
@@ -129,28 +190,16 @@ namespace MadPay724.Presentation
             //}); 
             #endregion
 
-
             services.AddCors();
             //services.Configure<CloudinarySettings>(Configuration.GetSection("CloudinarySettings"));
 
             services.AddAutoMapper(typeof(Startup));
-            services.AddTransient<ISeedService, SeedService>();
+            services.AddTransient<SeedService>();
             services.AddScoped<IUnitOfWork<MalpayDbContext>, UnitOfWork<MalpayDbContext>>();
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IUploadService, UploadService>();
             services.AddScoped<IUtilities, Utilities>();
-
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(opt =>
-                {
-                    opt.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Configuration.GetSection("AppSettingToken:Token").Value)),
-                        ValidateIssuer = false,
-                        ValidateAudience = false
-                    };
-                });
 
             #region swagger
             services.AddOpenApiDocument(document =>
@@ -198,7 +247,7 @@ namespace MadPay724.Presentation
             services.AddScoped<UserCheckIdFilter>();
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ISeedService seeder)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, SeedService seeder)
         {
             if (env.IsDevelopment())
             {

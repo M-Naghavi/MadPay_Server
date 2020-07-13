@@ -1,25 +1,30 @@
-﻿using AutoMapper;
-using MadPay724.Common.ErrorAndMessage;
-using MadPay724.Data.DatabaseContext;
-using MadPay724.Data.Dtos.Site.Admin.Users;
-using MadPay724.Data.Models;
-using MadPay724.Presentation.Routes.v1;
-using MadPay724.Repository.Infrastructure;
-using MadPay724.Services.Site.Admin.Auth.Interface;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.Tokens;
-using System;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
+﻿using System;
 using System.Threading.Tasks;
+using MadPay724.Data.DatabaseContext;
+using MadPay724.Data.Models;
+using MadPay724.Services.Site.Admin.Auth.Interface;
+using Newtonsoft.Json;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Microsoft.Extensions.Configuration;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
+using Microsoft.AspNetCore.Authorization;
+using MadPay724.Data.Dtos.Site.Admin.Users;
+using AutoMapper;
+using MadPay724.Common.ErrorAndMessage;
+using MadPay724.Common.Helpers.Interface;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using MadPay724.Repository.Infrastructure;
+using MadPay724.Presentation.Routes.v1;
 
 namespace MadPay724.Presentation.Controllers.Site.V1.Admin
 {
-    [Authorize]
+    [AllowAnonymous]
     //[Route("api/v1/site/admin/[controller]")]
     [ApiController]
     [ApiExplorerSettings(GroupName = "v1_Site_Admin")]
@@ -30,20 +35,29 @@ namespace MadPay724.Presentation.Controllers.Site.V1.Admin
         public readonly IConfiguration _configuration;
         public readonly IMapper _mapper;
         private readonly ILogger<AuthController> _logger;
+        private readonly IUtilities _utilities;
+        private readonly UserManager<User> _UserManager;
+        private readonly SignInManager<User> _signInManager;
+
         public AuthController(IUnitOfWork<MalpayDbContext> dbContext,
                     IAuthService authService,
                     IConfiguration configuration,
                     IMapper mapper,
-                    ILogger<AuthController> logger)
+                    ILogger<AuthController> logger,
+                    IUtilities utilities,
+                    UserManager<User> userManager,
+                    SignInManager<User> signInManager)
         {
             _authService = authService;
             _configuration = configuration;
             _mapper = mapper;
             _db = dbContext;
             _logger = logger;
+            _UserManager = userManager;
+            _signInManager = signInManager;
+            _utilities = utilities;
         }
 
-        [AllowAnonymous]
         [HttpPost(ApiV1Routes.Auth.Register)]
         public async Task<IActionResult> Register(UserForRegisterDto userForRegisterDto)
         {
@@ -96,7 +110,7 @@ namespace MadPay724.Presentation.Controllers.Site.V1.Admin
                 {
                     controller = "Users",
                     id = createdUser.Id
-                },userForReturn);
+                }, userForReturn);
             }
             else
             {
@@ -110,45 +124,37 @@ namespace MadPay724.Presentation.Controllers.Site.V1.Admin
             }
         }
 
-        [AllowAnonymous]
         [HttpPost(ApiV1Routes.Auth.Login)]
         public async Task<IActionResult> Login(UserForLoginDto userForLoginDto)
         {
-            var userFromRepo = await _authService.Login(userForLoginDto.UserName, userForLoginDto.Password);
-
-            if (userFromRepo == null)
+            var user = await _UserManager.FindByNameAsync(userForLoginDto.UserName);
+            if (user == null)
             {
-                _logger.LogWarning($"{userForLoginDto.UserName} درخواست ورود ناموفق داشته است");
-                return Unauthorized("کاربری با این یوزر و پسورد وجود ندارد");
+                _logger.LogWarning($"{userForLoginDto.UserName} درخواست لاگین ناموفق داشته است");
+                return Unauthorized("کاربری با این یوزر و پس وجود ندارد");
             }
+            var result = await _signInManager.CheckPasswordSignInAsync(user, userForLoginDto.Password, false);
 
-            var claims = new[]
+            if (result.Succeeded)
             {
-                new Claim(ClaimTypes.NameIdentifier , userFromRepo.Id.ToString()),
-                new Claim(ClaimTypes.Name , userFromRepo.UserName)
-            };
+                var appUser = _UserManager.Users.Include(p => p.Photos)
+                    .FirstOrDefault(u => u.NormalizedUserName == userForLoginDto.UserName.ToUpper());
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.GetSection("AppSettingToken:Token").Value));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
-            var tokenDes = new SecurityTokenDescriptor
+                var userForReturn = _mapper.Map<UserForDetailedDto>(appUser);
+
+                _logger.LogInformation($"{userForLoginDto.UserName} لاگین کرده است");
+                return Ok(new
+                {
+                    token = _utilities.GenerateJwtToken(appUser, userForLoginDto.IsRemember),
+                    user = userForReturn
+                });
+            }
+            else
             {
-                Subject = new ClaimsIdentity(claims),
-                Expires = userForLoginDto.IsRemember ? DateTime.Now.AddDays(1) : DateTime.Now.AddHours(2),
-                SigningCredentials = creds
-            };
+                _logger.LogWarning($"{userForLoginDto.UserName} درخواست لاگین ناموفق داشته است");
+                return Unauthorized("کاربری با این یوزر و پس وجود ندارد");
 
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var token = tokenHandler.CreateToken(tokenDes);
-
-            UserForDetailedDto user = _mapper.Map<UserForDetailedDto>(userFromRepo);
-
-            _logger.LogInformation($"{userForLoginDto.UserName} وارد سایت شده است");
-
-            return Ok(new
-            {
-                token = tokenHandler.WriteToken(token),
-                user
-            });
+            }
         }
 
     }

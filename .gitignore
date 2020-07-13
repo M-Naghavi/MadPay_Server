@@ -9,7 +9,9 @@ MadPay724.Repository/bin
 MadPay724.Repository/obj
 MadPay724.Services/bin
 MadPay724.Services/obj
+MadPay724.IdentityServer
 MadPay724.IdentityServer/bin
 MadPay724.IdentityServer/obj
 
 MadPay724.Test
+/IdentityServer-Test-ConsoleApp

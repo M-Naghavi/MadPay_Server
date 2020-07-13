@@ -13,7 +13,6 @@ using System.Threading.Tasks;
 
 namespace MadPay724.Presentation.Controllers.Site.V1.Admin
 {
-    [Authorize]
     //[Route("api/v1/site/admin/users/{userId}/photos")]
     [ApiController]
     [ApiExplorerSettings(GroupName = "v1_Site_Admin")]

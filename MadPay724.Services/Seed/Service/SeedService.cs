@@ -4,6 +4,7 @@ using MadPay724.Data.DatabaseContext;
 using MadPay724.Data.Models;
 using MadPay724.Repository.Infrastructure;
 using MadPay724.Services.Seed.Interface;
+using Microsoft.AspNetCore.Identity;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -16,56 +17,47 @@ namespace MadPay724.Services.Seed.Service
 {
     public class SeedService : ISeedService
     {
-        private readonly IUnitOfWork<MalpayDbContext> _db;
+        //private readonly IUnitOfWork<MalpayDbContext> _db;
+        private readonly UserManager<User> _userManager;
         private readonly IUtilities _utilities;
 
-        public SeedService(IUnitOfWork<MalpayDbContext> dbContext , IUtilities utilities)
+        //public SeedService(IUnitOfWork<MalpayDbContext> dbContext , IUtilities utilities)
+        public SeedService(UserManager<User> userManager, IUtilities utilities)
         {
-            _db = dbContext;
+            _userManager = userManager;
             _utilities = utilities;
         }
 
         public async Task SeedUsersAsync()
         {
-            if (_db.UserRepository.GetAll().Count() <= 0)
+            if (!_userManager.Users.Any())
             {
                 string userData = System.IO.File.ReadAllText("wwwroot/Files/Json/Seed/UserSeedData.json");
                 IList<User> users = JsonConvert.DeserializeObject<IList<User>>(userData);
-
                 foreach (var user in users)
                 {
-                    byte[] passwordHash, passwordSalt;
-                    _utilities.CreatePasswordHash("123456", out passwordHash, out passwordSalt);
-
-                    user.PasswordHash = passwordHash;
-                    user.PasswordSalt = passwordSalt;
-
-                    user.UserName = user.UserName.ToLower();
-                    await _db.UserRepository.InsertAsync(user);
+                    await _userManager.CreateAsync(user, "password");
                 }
-
-                await _db.SaveAsync();
             }
         }
         public void SeedUsers()
         {
-            if (_db.UserRepository.GetAll().Count() <= 0)
+            try
             {
-                string userData = System.IO.File.ReadAllText("Files/Json/Seed/UserSeedData.json");
-                IList<User> users = JsonConvert.DeserializeObject<IList<User>>(userData);
-
-                foreach (var user in users)
+                if (!_userManager.Users.Any())
                 {
-                    byte[] passwordHash, passwordSalt;
-                    _utilities.CreatePasswordHash("123456", out passwordHash, out passwordSalt);
+                    string userData = System.IO.File.ReadAllText("wwwroot/Files/Json/Seed/UserSeedData.json");
+                    IList<User> users = JsonConvert.DeserializeObject<IList<User>>(userData);
 
-                    user.PasswordHash = passwordHash;
-                    user.PasswordSalt = passwordSalt;
-
-                    user.UserName = user.UserName.ToLower();
-                    _db.UserRepository.Insert(user);
+                    foreach (var user in users.ToList())
+                    {
+                      _userManager.CreateAsync(user, "12345678").Wait();
+                    }
                 }
-                _db.Save();
+            }
+            catch (Exception e)
+            {
+
             }
         }
     }
